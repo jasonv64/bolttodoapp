@@ -5,6 +5,7 @@ export interface Task {
   description: string
   priority: 'low' | 'medium' | 'high'
   status: 'not_started' | 'wip' | 'completed'
+  completed: boolean
   created_at: string
   updated_at: string
 }
