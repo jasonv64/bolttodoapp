@@ -33,23 +33,35 @@ export function useTasks() {
     priority: 'low' | 'medium' | 'high'
     status?: 'not_started' | 'wip' | 'completed'
   }) => {
-    if (!user) throw new Error('User not authenticated')
+    if (!user || !user.id) {
+      throw new Error('User not authenticated or user ID is missing')
+    }
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([
-        {
+    try {
+      const response = await fetch('/.netlify/functions/create-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...taskData,
           user_id: user.id,
-          status: 'not_started',
-          ...taskData
-        }
-      ])
-      .select()
-      .single()
+          status: taskData.status || 'not_started'
+        }),
+      })
 
-    if (error) throw error
-    setTasks(prev => [data, ...prev])
-    return data
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create task via Netlify Function')
+      }
+
+      const data: Task = await response.json()
+      setTasks(prev => [data, ...prev])
+      return data
+    } catch (error) {
+      console.error('Error creating task via Netlify Function:', error)
+      throw error
+    }
   }
 
   const updateTask = async (
