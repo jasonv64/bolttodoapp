@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { ListTodo, CheckCircle } from 'lucide-react'
+import { Kanban, ListTodo, CheckCircle } from 'lucide-react'
 
 export function Navigation() {
   const location = useLocation()
@@ -8,9 +8,15 @@ export function Navigation() {
   const navItems = [
     {
       path: '/',
+      label: 'Board',
+      icon: Kanban,
+      isActive: location.pathname === '/'
+    },
+    {
+      path: '/todo',
       label: 'To Do',
       icon: ListTodo,
-      isActive: location.pathname === '/'
+      isActive: location.pathname === '/todo'
     },
     {
       path: '/completed',

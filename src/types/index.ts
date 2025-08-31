@@ -4,7 +4,7 @@ export interface Task {
   title: string
   description: string
   priority: 'low' | 'medium' | 'high'
-  completed: boolean
+  status: 'not_started' | 'wip' | 'completed'
   created_at: string
   updated_at: string
 }

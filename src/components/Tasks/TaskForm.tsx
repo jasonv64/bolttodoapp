@@ -8,15 +8,18 @@ interface TaskFormProps {
     title: string
     description: string
     priority: 'low' | 'medium' | 'high'
+    status?: 'not_started' | 'wip' | 'completed'
   }) => Promise<void>
   onCancel: () => void
   isOpen: boolean
+  initialStatus?: 'not_started' | 'wip' | 'completed'
 }
 
-export function TaskForm({ task, onSubmit, onCancel, isOpen }: TaskFormProps) {
+export function TaskForm({ task, onSubmit, onCancel, isOpen, initialStatus }: TaskFormProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
+  const [status, setStatus] = useState<'not_started' | 'wip' | 'completed'>(initialStatus || 'not_started')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -24,12 +27,14 @@ export function TaskForm({ task, onSubmit, onCancel, isOpen }: TaskFormProps) {
       setTitle(task.title)
       setDescription(task.description)
       setPriority(task.priority)
+      setStatus(task.status)
     } else {
       setTitle('')
       setDescription('')
       setPriority('medium')
+      setStatus(initialStatus || 'not_started')
     }
-  }, [task])
+  }, [task, initialStatus])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,13 +44,15 @@ export function TaskForm({ task, onSubmit, onCancel, isOpen }: TaskFormProps) {
       await onSubmit({
         title: title.trim(),
         description: description.trim(),
-        priority
+        priority,
+        status
       })
       
       if (!task) {
         setTitle('')
         setDescription('')
         setPriority('medium')
+        setStatus(initialStatus || 'not_started')
       }
     } catch (error) {
       console.error('Error submitting task:', error)
@@ -114,6 +121,22 @@ export function TaskForm({ task, onSubmit, onCancel, isOpen }: TaskFormProps) {
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
               <option value="high">High Priority</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'not_started' | 'wip' | 'completed')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            >
+              <option value="not_started">Not Started</option>
+              <option value="wip">Work In Progress</option>
+              <option value="completed">Completed</option>
             </select>
           </div>
 

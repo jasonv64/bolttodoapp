@@ -6,9 +6,11 @@ import { useTasks } from '../hooks/useTasks'
 import { Task } from '../types'
 
 export function TodoPage() {
-  const { activeTasks, loading, createTask, updateTask, deleteTask, toggleTaskComplete } = useTasks()
+  const { notStartedTasks, wipTasks, loading, createTask, updateTask, deleteTask, updateTaskStatus } = useTasks()
   const [showForm, setShowForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+
+  const activeTasks = [...notStartedTasks, ...wipTasks]
 
   const handleCreateTask = async (taskData: {
     title: string
@@ -39,6 +41,11 @@ export function TodoPage() {
     setEditingTask(null)
   }
 
+  const handleToggleComplete = async (taskId: string, completed: boolean) => {
+    const newStatus = completed ? 'completed' : 'not_started'
+    await updateTaskStatus(taskId, newStatus)
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -61,7 +68,7 @@ export function TodoPage() {
       <TaskList
         tasks={activeTasks}
         loading={loading}
-        onToggleComplete={toggleTaskComplete}
+        onToggleComplete={handleToggleComplete}
         onEdit={handleEditTask}
         onDelete={deleteTask}
         emptyMessage="No active tasks. Create one to get started!"

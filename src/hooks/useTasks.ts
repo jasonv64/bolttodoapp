@@ -31,6 +31,7 @@ export function useTasks() {
     title: string
     description: string
     priority: 'low' | 'medium' | 'high'
+    status?: 'not_started' | 'wip' | 'completed'
   }) => {
     if (!user) throw new Error('User not authenticated')
 
@@ -39,6 +40,7 @@ export function useTasks() {
       .insert([
         {
           user_id: user.id,
+          status: 'not_started',
           ...taskData
         }
       ])
@@ -76,26 +78,28 @@ export function useTasks() {
     setTasks(prev => prev.filter(task => task.id !== taskId))
   }
 
-  const toggleTaskComplete = async (taskId: string, completed: boolean) => {
-    return updateTask(taskId, { completed })
+  const updateTaskStatus = async (taskId: string, status: 'not_started' | 'wip' | 'completed') => {
+    return updateTask(taskId, { status })
   }
 
   useEffect(() => {
     fetchTasks()
   }, [user])
 
-  const activeTasks = tasks.filter(task => !task.completed)
-  const completedTasks = tasks.filter(task => task.completed)
+  const notStartedTasks = tasks.filter(task => task.status === 'not_started')
+  const wipTasks = tasks.filter(task => task.status === 'wip')
+  const completedTasks = tasks.filter(task => task.status === 'completed')
 
   return {
     tasks,
-    activeTasks,
+    notStartedTasks,
+    wipTasks,
     completedTasks,
     loading,
     createTask,
     updateTask,
     deleteTask,
-    toggleTaskComplete,
+    updateTaskStatus,
     refetch: fetchTasks
   }
 }
