@@ -43,5 +43,3 @@ export type Database = {
     }
   }
 }
-
-export { supabase }
